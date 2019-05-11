@@ -1,0 +1,14 @@
+
+@font-face {
+    font-family: 'MyFont';
+    src:  url('./iconfont.woff') format('woff'),
+    url('./iconfont.eot') format('eot');
+    font-weight: 600;
+    font-style: normal;
+}
+
+.hello {
+    color: red;
+    font-family: 'MyFont';
+    background: url('./webpack.png');
+  }
