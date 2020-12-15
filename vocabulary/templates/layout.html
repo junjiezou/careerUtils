@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>救救我的词汇量</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    {% endblock %}
+    <script src="{{ url_for('static', filename='jquery-3.3.1.min.js') }}"></script>
+	
+  </head>
+  <body>
+  	<div id="header">
+  		<h2> </h2>
+  	</div>
+  	<div class="container-fluid" style="padding-bottom: 10px;">
+    	<div id="content" class="col-md-4 col-xs-12 col-md-offset-4">{% block content %}{% endblock %}</div>
+	</div>
+    <div id="footer" style="position:fixed;bottom: 0px;z-index:99">
+    <div class="container-fluid">
+	    <div class="input-group input-group-lg col-md-4 col-xs-12 col-md-offset-4" style="
+	    border-radius: 10px;
+    	border-width: 5px;
+    	border-style: solid;
+    	border-color: rgba(249, 244, 244, 0.68);
+    	border-bottom-width: 0px;">
+		  <input type="text" class="form-control" id="chat" name="chat" placeholder="输入单词或者URL" aria-describedby="basic-addon2">
+		  <span class="input-group-addon" id="basic-addon2" style="cursor: pointer;" onclick="parse()">
+		  <span class="glyphicon glyphicon-expand" aria-hidden="true"></span>
+		  </span>
+		</div>
+    </div>
+    {% block footer %}
+	    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="{{ url_for('static', filename='template-web.js') }}"></script>
+    {% endblock %}
+    </div>
+	
+  </body>
+</html>

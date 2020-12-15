@@ -1,0 +1,319 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="row panel panel-success">
+	<div class="panel-heading">又回来啦！感谢小胖赐予你幸福时光 </div>
+	  <div class="panel-body">
+	  	<dl class="dl-horizontal">
+  			<dt>当前熟词数：</dt><dd>{{ sumarry['familiars'] }}</dd>
+  			<dt>当前生词词数：</dt><dd>{{ sumarry['stranges'] }}</dd>
+  		</dl>
+	 <a href="javascript:;" class="btn btn-default" onclick="go_happy()"> 
+	 	<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>开始背单词 
+	 	<!-- <img src="{{ url_for('static', filename='img/start.gif') }}" style="width: 100%;"></img> -->
+	 </a>
+	 <p> </p>
+		</div>
+	</div>
+  <script type="text/javascript">
+   // 获取单个单词，列出所有操作：1 3 5 7 天后再展示，查看翻译，加入熟词
+  	function go_happy() {
+  		// body...
+  		$.ajax({
+  			url:"/strange",
+  			success:function(result){
+  				obj = JSON.parse(result);
+	        	if(obj.success && obj.word){
+	        		// $('#go_happy_img').parent().hide();
+					$('div#content').prepend( template("template_word",obj.word) );
+	        	}else if( !obj.word ){
+	        		// $('#go_happy_img').parent().hide();
+					$('div#content').prepend( template("template_empty") );
+	        	}else{
+					$('div#content').prepend( template("template_happy",obj.word) );
+	        	}
+	        	scrollToHome();
+	    	}});
+  	}
+
+// 查询一个单词
+ function search(word){
+	$.ajax({
+		url:"/iciba/"+word,
+		success:function(result){
+			obj = JSON.parse(result);
+		if(obj.success){
+			$('div#content').prepend( template("template_dictionary",obj.translate) );
+		}else{
+			$('div#content').prepend( template("template_happy") );
+		}
+		scrollToHome();
+	}});
+ }
+
+ function next_word(word){
+	 later(word,0);
+ }
+
+ function later(word,d) {
+ 	$.ajax({
+		url:"/strange/"+word+"/"+d,
+		success:function(result){
+			obj = JSON.parse(result);
+    	if(obj.success){
+			$('div#content').prepend( template("template_word",obj.word) );
+    	}else{
+			$('div#content').prepend( template("template_happy",obj.word) );
+    	}
+    	scrollToHome();
+	}});
+ }
+
+ function mark_familiar(word) {
+ 	// body...
+ 	$.ajax({
+		url:"/markFamiliar/"+word,
+		success:function(result){
+			obj = JSON.parse(result);
+    	if(obj.success){
+			go_happy();
+    	}else{
+			$('div#content').prepend( template("template_happy",obj.word) );
+    	}
+	}});
+ }
+
+function parse() {
+	// 解释word或者url
+	chat = $('input#chat').val();
+	if( !chat ) return ;
+	var patt = /^[a-zA-Z_ 0-9]+$/;
+	if( patt.test(chat) ){
+		$.ajax({
+			url:"/iciba/"+encodeURIComponent(chat),
+			success:function(result){
+				obj = JSON.parse(result);
+			if(obj.success){
+				// $('#go_happy_img').parent().hide();
+				$('div#content').prepend( template("template_dictionary",$.extend( true, {'with_op':true}, obj.translate )) );
+			}else{
+				$('div#content').prepend( template("template_happy") );
+			}
+			scrollToHome();
+		}});
+	}else{
+		$.ajax({
+			url:"/parseUrl?url="+encodeURIComponent(chat),
+			success:function(result){
+				obj = JSON.parse(result);
+			if(obj.success){
+				// $('#go_happy_img').parent().hide();
+				$('div#content').prepend( template("template_parseUrl",obj) );
+			}else{
+				$('div#content').prepend( template("template_happy") );
+			}
+			scrollToHome();
+		}});
+	}
+}
+function batchMarkStrange(batchId){
+	$.ajax({
+		url:"/batchMarkStrange/"+batchId,
+		success:function(result){
+			obj = JSON.parse(result);
+    	if(obj.success){
+			go_happy();
+    	}else{
+			$('div#content').prepend( template("template_happy",obj.word) );
+    	}
+	}});
+}
+
+function markStrange(word){
+	$.ajax({
+		url:"/markStrange/"+word,
+		success:function(result){
+			obj = JSON.parse(result);
+    	if(obj.success){
+			go_happy();
+    	}else{
+			$('div#content').prepend( template("template_happy",obj.word) );
+    	}
+	}});
+}
+
+//滚动到底部
+function scrollToEnd(){
+    var h = $(document).height()-$(window).height();
+    $(document).scrollTop(h); 
+}
+
+function scrollToHome(){
+    $(document).scrollTop(0); 
+}
+
+  	$(document).ready(function(){
+  		// body...
+  	});
+
+  </script>
+
+<script type="text/html" id="template_parseUrl">
+	<div class="row panel panel-success">
+	<div class="panel-heading">网站分析结果</div>
+	  <div class="panel-body">
+	  	<dl class="dl-horizontal">
+			<dt>网站：</dt><dd><%= url%></dd>
+			<dt>熟词个数：</dt><dd><%= familiar %></dd>
+			<dt>生词个数：</dt><dd><%= 0 + strange + unknow %></dd>
+		</dl>
+		<div class="btn-group" role="group">
+		  <button type="button" class="btn btn-default" onclick="batchMarkStrange('<%= batchId %>')">
+		  	<span class="glyphicon glyphicon-save-file" aria-hidden="true"></span>
+		  	<span class="glyphicon-class">加入生词</span>
+		  </button>
+		</div>
+		</div>
+	</div>
+</script>
+
+<script id="template_dictionary" type="text/html">
+<!-- 单个单词进行记忆 -->
+	<div class="row panel panel-success">
+	<div class="panel-heading">单词翻译结果</div>
+	  <div class="panel-body">
+		<H2 style="position: inline-block;"><%= key %></H2>
+		
+		<% if( with_op ) { %>
+		<div class="btn-group" role="group">
+			<button type="button" class="btn btn-default" onclick="markStrange('<%= key %>')">
+			  	<span class="glyphicon glyphicon-save-file" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">加入生词</span>
+			</button>
+		  <button type="button" class="btn btn-default" onclick="mark_familiar('<%= key %>')">
+		  		<span class="glyphicon glyphicon-open-file" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">加入熟词</span>
+		  </button>
+		</div>
+		<% }else{ %> 
+			<div class="btn-group" role="group">
+			  <button type="button" class="btn btn-default" onclick="next_word('<%= key %>')">
+			  	<!-- <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> -->
+			  	<span class="glyphicon-class">晚点再复习</span>
+			  </button>
+			  <!-- <button type="button" class="btn btn-default"  onclick="later('<%= key %>',1)">
+			  	<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">1天重复</span>
+			  </button>
+			  <button type="button" class="btn btn-default" onclick="later('<%= key %>',3)">
+				<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">3天重复</span>
+			  </button>
+			  <button type="button" class="btn btn-default" onclick="later('<%= key %>',7)">
+				<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">7</span>
+			  </button> -->
+			  <button type="button" class="btn btn-default" onclick="mark_familiar('<%= key %>')">
+			  	<!-- <span class="glyphicon glyphicon-check" aria-hidden="true"></span> -->
+			  	<span class="glyphicon-class">已记熟</span>
+			  </button>
+			</div>
+		<% } %>
+
+		<% if(ps){ %>
+			<dl class="ps">
+			<% if( typeof ps == 'object' ){ %> 
+				<% for( var i = 0 ; i < ps.length ; i++){ %>
+					<dt><%= ps[i] %></dt>
+					<dd><audio controls="controls">
+  						<source src="<%= pron[i]%>" type="audio/mp3" />
+					</audio></dd>
+				<% } %>
+			<% }else{ %>
+					<dt><%= ps %></dt>
+					<dd><audio controls="controls">
+  						<source src="<%= pron%>" type="audio/mp3" />
+					</audio></dd>
+				<% } %>
+			</dl>
+		<% } %>
+		
+		<% if(pos){ %>
+			<dl class="pos">
+				<% if( typeof pos == 'object' ){ %> 
+					<% for( var i = 0 ; i < pos.length ; i++){ %>
+						<dt><%= pos[i] %></dt><dd><%= acceptation[i] %></dd>
+					<% } %>
+				<% }else{ %>
+					<dt><%= pos %></dt><dd><%= acceptation %></dd>
+				<% }%>
+			</dl>
+		<% } %>
+
+		<% if(sent){ %>
+			<dl class="sent">
+				<% for( var i = 0 ; i < sent.length ; i++){ %>
+					<dt><%= sent[i].orig %></dt>
+					<dd><%= sent[i].trans %></dd>
+				<% } %>
+			</dl>
+		<% } %>	
+		</div>
+	</div>
+</script>
+
+<script id="template_word" type="text/html">
+	<div class="row panel panel-success">
+	<div class="panel-heading">学习计划中的单词</div>
+	  <div class="panel-body">
+			<H2 style=""><%= Word %></H2>
+			<div class="btn-group" role="group">
+			  <button type="button" class="btn btn-default" onclick="search('<%= Word %>')">
+			  	<!-- <span class="glyphicon glyphicon-search" aria-hidden="true"></span> -->
+			  	<span class="glyphicon-class">查字典</span>
+			  </button>
+			  <button type="button" class="btn btn-default" onclick="next_word('<%= Word %>')">
+			  	<!-- <span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> -->
+			  	<span class="glyphicon-class">晚点再复习</span>
+			  </button>
+			  <!-- <button type="button" class="btn btn-default"  onclick="later('<%= Word %>',1)">
+			  	<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">1</span>
+			  </button>
+			  <button type="button" class="btn btn-default" onclick="later('<%= Word %>',3)">
+				<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">3</span>
+			  </button>
+			  <button type="button" class="btn btn-default" onclick="later('<%= Word %>',7)">
+				<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+			  	<span class="glyphicon-class">7</span>
+			  </button> -->
+			  <button type="button" class="btn btn-default" onclick="mark_familiar('<%= Word %>')">
+			  	<!-- <span class="glyphicon glyphicon-check" aria-hidden="true"></span> -->
+			  	<span class="glyphicon-class">已记熟</span>
+			  </button>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script id="template_empty" type="text/html">
+	<!-- 无单词 -->
+	<div class="row panel panel-success">
+	<div class="panel-heading">无需要学习的单词</div>
+	  <div class="panel-body">
+	  	<img src="{{ url_for('static', filename='img/enjoy.gif') }}" style="width: 300px;"></img>
+	  </div>
+	</div>
+</script>
+
+<!-- 无需要记忆的单词 -->
+<script id="template_happy" type="text/html">
+	<div class="row panel panel-success">
+	<div class="panel-heading">出错提醒</div>
+	  <div class="panel-body">
+	  	<img src="{{ url_for('static', filename='img/happy.gif') }}" style="width: 300px;"></img>
+	  </div>
+	</div>
+</script>
+
+{% endblock %}
