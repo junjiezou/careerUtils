@@ -22,3 +22,5 @@ FLUSH PRIVILEGES;
 
 create table voStrange (AccountId VARCHAR(64), Word VARCHAR(128),Source VARCHAR(64),UpdateDate DATE);
 create table voFamiliar (AccountId VARCHAR(64), Word VARCHAR(128),Source VARCHAR(64)) ;
+
+### 处理到云服务器上的python版本

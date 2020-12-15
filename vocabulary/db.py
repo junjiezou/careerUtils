@@ -17,7 +17,8 @@ def makeInCondiction( field , tupleValues):
 def wordsInFamiliar( accountId , words ):
 	connection = db_pool.connection()
 	with connection.cursor() as cursor:
-		sql = "select Word from voFamiliar where AccountId = %s and "+makeInCondiction("Word",words) 
+		sql = "select Word from voFamiliar where AccountId = %s and "+makeInCondiction("Word",words)
+		print(sql)
 		cursor.execute(sql, (accountId,) + words )
 		result = cursor.fetchall()
 		cursor.close()
