@@ -20,15 +20,15 @@ def parseUrl( url ):
 		words = parser.words
 		# 以下代码是可以正常运作的，但是要把这块逻辑去掉，因为查询太久
 		# 而且一次性带出的新词汇太多，有碍用户体验并且给用户带来太多生词，比较容易气馁
-		# for x in parser.hrefs:
-		# 	try:
-		# 		r = requests.get(x,timeout=1)
-		# 		text = r.text
-		# 	except:
-		# 		text = ''
-		# 	singleParse = SinglePageParse()
-		# 	singleParse.feed( text )
-		# 	words.update(singleParse.words)
+		for x in parser.hrefs:
+			try:
+				r = requests.get(x,timeout=1)
+				text = r.text
+			except:
+				text = ''
+			singleParse = SinglePageParse()
+			singleParse.feed( text )
+			words.update(singleParse.words)
 		return words
 	except:
 		return ('apple','egg','word') # 测试数据
