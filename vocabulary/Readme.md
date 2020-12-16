@@ -24,3 +24,35 @@ create table voStrange (AccountId VARCHAR(64), Word VARCHAR(128),Source VARCHAR(
 create table voFamiliar (AccountId VARCHAR(64), Word VARCHAR(128),Source VARCHAR(64)) ;
 
 ### 处理到云服务器上的python版本
+- 安装Anaconda
+wget https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
+bash Anaconda3-2020.11-Linux-x86_64.sh
+
+- 命令
+conda list # 查看安装的包
+conda create -n venv  list of packages
+source activate venv    #进入新环境
+source deactivate       #退出
+conda env remove -n env_name    #删除
+conda env list  # 显示环境
+conda env export > environment.yaml # 保存环境
+conda env create -f environment.yaml    #迁移环境
+conda install --name <env_name> <package_name> # 安装
+conda remove --name <env_name> <package_name>   # 卸载
+conda install <package_name>    # 在当前环境中安装包
+conda remove <package_name>     
+
+- 其他命令
+新建一个tensorflow环境
+conda create -n tensorflow python=3.5
+conda activate tensorflow
+pip install tensorflow-gpu keras # 安装 gpu 版本的 tensorflow 和 keras
+安装需要的环境
+conda install ipython
+conda install jupyter
+
+- conda源为国内源
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --set show_channel_urls yes
+
