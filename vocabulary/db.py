@@ -24,10 +24,11 @@ def wordsInFamiliar( accountId , words ):
 		connection.close()
 		return result
 
+
 def wordsInStrange( accountId , words ):
 	connection = db_pool.connection()
 	with connection.cursor() as cursor:
-		sql = "select Word from voStrange where AccountId = %s and "+makeInCondiction("Word",words) 
+		sql = "select Word from voStrange where AccountId = %s and "+makeInCondiction("Word",words)
 		cursor.execute(sql, (accountId,) + words )
 		result = cursor.fetchall()
 		cursor.close()
@@ -65,10 +66,11 @@ def insertFamiliarWords( accountId , words , source ):
 		return False
 	return True
 
+# 单词取翻后排序，经常出现类似词汇，方便联想记忆  + " order by reverse(Word)"
 def getStrangeWord( accountId ):
 	connection = db_pool.connection()
 	with connection.cursor() as cursor:
-		sql = "select Word from voStrange where AccountId = %s order by UpdateDate asc , Word desc limit 1 "
+		sql = "select Word from voStrange where AccountId = %s order by UpdateDate asc,reverse(Word) asc limit 1 "
 		cursor.execute(sql, (accountId,) )
 		result = cursor.fetchone()
 		cursor.close()
@@ -97,7 +99,7 @@ def markNextStrange(accountId , word ,d ):
 	now = datetime.datetime.now()
 	delta = datetime.timedelta(days=3)
 	n_days = now + delta
-	updatedate = n_days.strftime('%Y-%m-%d %H:%M:%S')
+	updatedate = n_days.strftime('%Y-%m-%d %H:00:00')
 	with connection.cursor() as cursor:
 		sql = "update voStrange set UpdateDate = %s where AccountId = %s and word = %s " 
 		cursor.execute(sql,(updatedate,accountId,word))
