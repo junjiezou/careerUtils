@@ -86,7 +86,7 @@ function parse() {
 	// 解释word或者url
 	chat = $('input#chat').val();
 	if( !chat ) return ;
-	var patt = /^[a-zA-Z_ 0-9]+$/;
+	var patt = /^[a-zA-Z_0-9]+$/;
 	if( patt.test(chat) ){
 		$.ajax({
 			url:"/iciba/"+encodeURIComponent(chat),
@@ -100,7 +100,20 @@ function parse() {
 			}
 			scrollToHome();
 		}});
-	}else{
+	}else if (chat.indexOf(" ") > 0 ){
+        $.ajax({
+			url:"/parseSentence?sentence="+encodeURIComponent(chat),
+			success:function(result){
+				obj = JSON.parse(result);
+			if(obj.success){
+				// $('#go_happy_img').parent().hide();
+				$('div#content').prepend( template("template_parseUrl",obj) );
+			}else{
+				$('div#content').prepend( template("template_happy") );
+			}
+			scrollToHome();
+		}});
+    }else{
 		$.ajax({
 			url:"/parseUrl?url="+encodeURIComponent(chat),
 			success:function(result){
@@ -162,7 +175,12 @@ function scrollToHome(){
 	<div class="panel-heading">网站分析结果</div>
 	  <div class="panel-body">
 	  	<dl class="dl-horizontal">
-			<dt>网站：</dt><dd><%= url%></dd>
+            <% if( url ) { %>
+            <dt>网站：</dt><dd><%= url%></dd>
+            <% } %>
+            <% if( sentence ) { %>
+            <dt>句子：</dt><dd><%= sentence %></dd>
+            <% } %>
 			<dt>熟词个数：</dt><dd><%= familiar %></dd>
 			<dt>生词个数：</dt><dd><%= 0 + strange + unknow %></dd>
 		</dl>

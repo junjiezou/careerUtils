@@ -82,6 +82,35 @@ def parseUrl( ):
 
 
 """
+解释句子
+"""
+@app.route('/parseSentence')
+def parseSentence( ):
+	sentence = request.args.get('sentence')
+	pattern = re.compile(r'[a-zA-Z]{3,}')
+	result = pattern.findall(sentence)
+	familiarWords = db.wordsInFamiliar('junjiezou',tuple(result))
+	familiarWords = helper.getFieldFromDictArray(familiarWords,'Word')
+	strangeWords = db.wordsInStrange('junjiezou',tuple(result))
+	strangeWords = helper.getFieldFromDictArray(strangeWords,'Word')
+	unknowWords = set(result) - set(familiarWords) - set(strangeWords)
+	content = {	'result':tuple(result),
+	'familiarWords':tuple(familiarWords),
+	'strangeWords':tuple(strangeWords),
+	'unknowWords':tuple(unknowWords),
+	'familiar': len(familiarWords),
+	'strange':len(strangeWords),
+	'unknow':len(unknowWords),
+	'sentence':sentence,
+	}
+	contentString = str(content)
+	md5 = hashlib.md5()
+	md5.update(contentString.encode("utf-8"))
+	content['batchId'] = md5.hexdigest()
+	return json.dumps({'success':True,'sentence':sentence,'familiar':content['familiar'],'strange':content['strange'],'unknow':content['unknow'],'batchId':content['batchId']})
+
+
+"""
 parseurl 会生成batchId,把整个批次的单词都导入到生词库
 
 """
