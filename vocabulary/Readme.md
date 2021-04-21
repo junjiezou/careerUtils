@@ -2,6 +2,16 @@ virtualenv --no-site-packages venv
 export FLASK_APP=index.py
 python -m flask run -h 0.0.0.0 -p 80 &
 
+### linux 服务器上的启动
+pip install virtualenv
+pip install pymysql
+pip install DBUtils==1.3
+
+source activate venv
+export FLASK_APP=index.py
+nohup python -m flask run -h 0.0.0.0 -p 80 &
+
+
 ## mariadb
 ### 安装
 yum install mariadb

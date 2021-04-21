@@ -107,6 +107,8 @@ def parseSentence( ):
 	md5 = hashlib.md5()
 	md5.update(contentString.encode("utf-8"))
 	content['batchId'] = md5.hexdigest()
+	with open("./temporaryFile/" + content['batchId'], "w") as file:
+		file.write(json.dumps(content))
 	return json.dumps({'success':True,'sentence':sentence,'familiar':content['familiar'],'strange':content['strange'],'unknow':content['unknow'],'batchId':content['batchId']})
 
 
